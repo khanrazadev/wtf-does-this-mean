@@ -1,8 +1,10 @@
 
 import { defineConfig } from 'vite';
 import { crx } from '@crxjs/vite-plugin';
-import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import manifest from './manifest.json';
+
+const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   plugins: [crx({ manifest })],
@@ -10,7 +12,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, 'src/popup/popup.html'),
+        popup: `${rootDir}src/popup/popup.html`,
       },
     },
   },
