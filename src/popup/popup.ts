@@ -1,11 +1,34 @@
 
 import './popup.css';
 
-const app = document.querySelector<HTMLDivElement>('#app');
+import {
+    deleteVocabulary,
+    searchVocabulary,
+} from '../storage/vocabulary.storage';
 
-if (!app) {
-    throw new Error('Popup root element was not found.');
+import type { VocabularyEntry } from '../types/vocabulary.types';
+
+// DOM element initialization
+
+function getRequiredElement<T extends HTMLElement>(
+    parent: ParentNode,
+    selector: string,
+): T {
+    const element = parent.querySelector<T>(selector);
+
+    if (!element) {
+        throw new Error(`Required element not found: ${selector}`);
+    }
+
+    return element;
 }
+
+const app = getRequiredElement<HTMLDivElement>(
+    document,
+    '#app',
+);
+
+// Popup markup
 
 app.innerHTML = `
   <header class="header">
@@ -13,7 +36,9 @@ app.innerHTML = `
       <div class="brand-icon">W</div>
       <div>
         <div class="brand-name">WTFDoesThisMean</div>
-        <div class="brand-description">Understand words. Use them naturally.</div>
+        <div class="brand-description">
+          Understand words. Use them naturally.
+        </div>
       </div>
     </div>
   </header>
@@ -69,13 +94,17 @@ app.innerHTML = `
         Words and phrases you've learned.
       </p>
 
-      <div class="empty-state">
-        <div class="empty-icon">⌑</div>
-        <h2 class="empty-title">No saved words yet</h2>
-        <p class="empty-description">
-          Every word you explain will automatically appear here.
-        </p>
-      </div>
+      <input
+        id="saved-search"
+        class="word-input"
+        type="search"
+        placeholder="Search your vocabulary..."
+        aria-label="Search saved vocabulary"
+      />
+
+      <div id="saved-list" class="saved-list" aria-live="polite"></div>
+
+      <p id="saved-status" class="hint" role="status"></p>
     </section>
   </main>
 
@@ -84,39 +113,112 @@ app.innerHTML = `
   </footer>
 `;
 
-const tabs = app.querySelectorAll<HTMLButtonElement>('[data-tab]');
-const explainView = app.querySelector<HTMLElement>('#explain-view');
-const savedView = app.querySelector<HTMLElement>('#saved-view');
-const wordInput = app.querySelector<HTMLInputElement>('#word-input');
-const explainButton = app.querySelector<HTMLButtonElement>('#explain-button');
-const wordForm = app.querySelector<HTMLFormElement>('#word-form');
-const statusMessage = app.querySelector<HTMLElement>('#status-message');
+// Popup elements
 
-if (
-    !explainView ||
-    !savedView ||
-    !wordInput ||
-    !explainButton ||
-    !wordForm ||
-    !statusMessage
-) {
-    throw new Error('Popup elements could not be initialized.');
+const tabs = app.querySelectorAll<HTMLButtonElement>('[data-tab]');
+
+const explainView = getRequiredElement<HTMLElement>(app, '#explain-view');
+const savedView = getRequiredElement<HTMLElement>(app, '#saved-view');
+const wordInput = getRequiredElement<HTMLInputElement>(app, '#word-input');
+const explainButton = getRequiredElement<HTMLButtonElement>(app, '#explain-button');
+const wordForm = getRequiredElement<HTMLFormElement>(app, '#word-form');
+const statusMessage = getRequiredElement<HTMLElement>(app, '#status-message');
+const savedSearch = getRequiredElement<HTMLInputElement>(app, '#saved-search');
+const savedList = getRequiredElement<HTMLDivElement>(app, '#saved-list');
+const savedStatus = getRequiredElement<HTMLElement>(app, '#saved-status');
+
+// HTML escaping
+
+function escapeHtml(value: string): string {
+    const entities: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+    };
+
+    return value.replace(
+        /[&<>"']/g,
+        (character) => entities[character] ?? character,
+    );
 }
 
-const elements = {
-    explainView,
-    savedView,
-    wordInput,
-    explainButton,
-    wordForm,
-    statusMessage,
-};
+// Saved vocabulary rendering
+
+function renderSavedEntries(entries: VocabularyEntry[]): void {
+    if (entries.length === 0) {
+        savedList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⌑</div>
+        <h2 class="empty-title">No saved words found</h2>
+        <p class="empty-description">
+          Explained words will automatically appear here.
+        </p>
+      </div>
+    `;
+
+        return;
+    }
+
+    savedList.innerHTML = entries
+        .map(
+            (entry) => `
+        <article class="saved-entry">
+          <div class="saved-entry-header">
+            <div>
+              <h2 class="saved-word">${escapeHtml(entry.word)}</h2>
+
+              ${entry.partOfSpeech
+                    ? `<span class="saved-part-of-speech">${escapeHtml(entry.partOfSpeech)}</span>`
+                    : ''
+                }
+            </div>
+
+            <button
+              class="delete-button"
+              type="button"
+              data-delete-id="${escapeHtml(entry.id)}"
+              aria-label="Delete ${escapeHtml(entry.word)}"
+              title="Delete word"
+            >
+              Delete
+            </button>
+          </div>
+
+          <p class="saved-meaning">${escapeHtml(entry.meaning)}</p>
+
+          <div class="saved-examples">
+            <p>${escapeHtml(entry.examples[0])}</p>
+            <p>${escapeHtml(entry.examples[1])}</p>
+          </div>
+        </article>
+      `,
+        )
+        .join('');
+}
+
+// Load saved vocabulary
+
+async function loadSavedVocabulary(query = ''): Promise<void> {
+    savedStatus.textContent = '';
+
+    try {
+        const entries = await searchVocabulary(query);
+        renderSavedEntries(entries);
+    } catch {
+        savedList.innerHTML = '';
+        savedStatus.textContent = 'Could not load your saved vocabulary.';
+    }
+}
+
+// Tab navigation
 
 function switchTab(tabName: 'explain' | 'saved'): void {
     const isExplainTab = tabName === 'explain';
 
-    elements.explainView.hidden = !isExplainTab;
-    elements.savedView.hidden = isExplainTab;
+    explainView.hidden = !isExplainTab;
+    savedView.hidden = isExplainTab;
 
     tabs.forEach((tab) => {
         const isActive = tab.dataset.tab === tabName;
@@ -124,6 +226,10 @@ function switchTab(tabName: 'explain' | 'saved'): void {
         tab.classList.toggle('active', isActive);
         tab.setAttribute('aria-selected', String(isActive));
     });
+
+    if (!isExplainTab) {
+        void loadSavedVocabulary(savedSearch.value);
+    }
 }
 
 tabs.forEach((tab) => {
@@ -135,6 +241,8 @@ tabs.forEach((tab) => {
         }
     });
 });
+
+// Explain form
 
 wordInput.addEventListener('input', () => {
     explainButton.disabled = !wordInput.value.trim();
@@ -152,4 +260,45 @@ wordForm.addEventListener('submit', (event) => {
 
     statusMessage.textContent =
         'Word input is ready. AI integration is our next step.';
+});
+
+// Vocabulary search
+
+savedSearch.addEventListener('input', () => {
+    void loadSavedVocabulary(savedSearch.value);
+});
+
+// Delete vocabulary
+
+savedList.addEventListener('click', async (event) => {
+    const target = event.target;
+
+    if (!(target instanceof Element)) {
+        return;
+    }
+
+    const deleteButton = target.closest<HTMLButtonElement>(
+        '[data-delete-id]',
+    );
+
+    if (!deleteButton || deleteButton.disabled) {
+        return;
+    }
+
+    const entryId = deleteButton.dataset.deleteId;
+
+    if (!entryId) {
+        return;
+    }
+
+    deleteButton.disabled = true;
+    savedStatus.textContent = '';
+
+    try {
+        await deleteVocabulary(entryId);
+        await loadSavedVocabulary(savedSearch.value);
+    } catch {
+        deleteButton.disabled = false;
+        savedStatus.textContent = 'Could not delete this word. Try again.';
+    }
 });
