@@ -2,8 +2,9 @@
 import './popup.css';
 
 import {
-    deleteVocabulary,
-    searchVocabulary,
+  deleteVocabulary,
+  searchVocabulary,
+  saveVocabulary,
 } from '../storage/vocabulary.storage';
 
 import type { VocabularyEntry } from '../types/vocabulary.types';
@@ -302,3 +303,34 @@ savedList.addEventListener('click', async (event) => {
         savedStatus.textContent = 'Could not delete this word. Try again.';
     }
 });
+
+async function addSampleVocabulary(): Promise<void> {
+  const samples: VocabularyEntry[] = [
+    {
+      id: 'sample-1',
+      word: 'Subtle',
+      partOfSpeech: 'Adjective',
+      meaning: 'Something not immediately obvious or noticeable.',
+      examples: [
+        'There was a subtle difference between the two designs.',
+        'She gave him a subtle hint that she wanted to leave.',
+      ],
+      createdAt: Date.now(),
+    },
+    {
+      id: 'sample-2',
+      word: 'Reluctant',
+      partOfSpeech: 'Adjective',
+      meaning: 'Unwilling or hesitant to do something.',
+      examples: [
+        'He was reluctant to accept the offer.',
+        'I was reluctant to ask for help.',
+      ],
+      createdAt: Date.now(),
+    },
+  ];
+
+  await Promise.all(samples.map(saveVocabulary));
+}
+
+void addSampleVocabulary();
