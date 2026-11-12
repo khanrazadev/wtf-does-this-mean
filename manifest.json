@@ -4,11 +4,12 @@
   "name": "WTFDoesThisMean",
   "version": "0.1.0",
   "description": "Understand words. Learn to use them naturally.",
-  "permissions": [
-    "storage",
-    "contextMenus",
-    "activeTab"
-  ],
+ "permissions": [
+  "storage",
+  "contextMenus",
+  "activeTab",
+  "clipboardWrite"
+],
   "host_permissions": [
     "https://api.groq.com/*"
   ],

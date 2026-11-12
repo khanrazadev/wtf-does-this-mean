@@ -1,9 +1,8 @@
+import { getGroqApiKey } from "../storage/settings.storage";
+import type { WordExplanation } from "../types/vocabulary.types";
 
-import { getGroqApiKey } from '../storage/settings.storage';
-import type { WordExplanation } from '../types/vocabulary.types';
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GROQ_MODEL = "openai/gpt-oss-20b";
 const REQUEST_TIMEOUT_MS = 30_000;
 
 interface GroqChatCompletionResponse {
@@ -18,7 +17,7 @@ interface GroqChatCompletionResponse {
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null;
+    return typeof value === "object" && value !== null;
 }
 
 function parseExplanation(content: string): WordExplanation {
@@ -27,111 +26,105 @@ function parseExplanation(content: string): WordExplanation {
     try {
         parsed = JSON.parse(content);
     } catch {
-        throw new Error('Groq returned an invalid JSON response.');
+        throw new Error("Groq returned an invalid JSON response.");
     }
 
     if (!isRecord(parsed)) {
-        throw new Error('Groq returned an invalid explanation.');
+        throw new Error("Groq returned an invalid explanation.");
     }
 
     const { word, partOfSpeech, meaning, examples } = parsed;
 
     if (
-        typeof word !== 'string' ||
+        typeof word !== "string" ||
         !word.trim() ||
-        typeof meaning !== 'string' ||
+        typeof meaning !== "string" ||
         !meaning.trim() ||
-        (partOfSpeech !== undefined && typeof partOfSpeech !== 'string') ||
+        (partOfSpeech !== undefined && typeof partOfSpeech !== "string") ||
         !Array.isArray(examples) ||
         examples.length !== 2 ||
         !examples.every(
             (example): example is string =>
-                typeof example === 'string' && example.trim().length > 0,
+                typeof example === "string" && example.trim().length > 0,
         )
     ) {
-        throw new Error('Groq returned an incomplete explanation.');
+        throw new Error("Groq returned an incomplete explanation.");
     }
 
     return {
         word: word.trim(),
-        ...(typeof partOfSpeech === 'string' && partOfSpeech.trim()
+        ...(typeof partOfSpeech === "string" && partOfSpeech.trim()
             ? { partOfSpeech: partOfSpeech.trim() }
             : {}),
         meaning: meaning.trim(),
-        examples: [
-            examples[0].trim(),
-            examples[1].trim(),
-        ],
+        examples: [examples[0].trim(), examples[1].trim()],
     };
 }
 
-export async function explainWord(
-    word: string,
-): Promise<WordExplanation> {
+export async function explainWord(word: string): Promise<WordExplanation> {
     const normalizedWord = word.trim();
 
     if (!normalizedWord) {
-        throw new Error('Please enter a word or phrase.');
+        throw new Error("Please enter a word or phrase.");
     }
 
     const apiKey = await getGroqApiKey();
 
     if (!apiKey) {
-        throw new Error('Groq API key not configured. Add your API key first.');
+        throw new Error("Groq API key not configured. Add your API key first.");
     }
 
     const controller = new AbortController();
 
-    const timeoutId = setTimeout(
-        () => controller.abort(),
-        REQUEST_TIMEOUT_MS,
-    );
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
     try {
         const response = await fetch(GROQ_API_URL, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 Authorization: `Bearer ${apiKey}`,
             },
             signal: controller.signal,
             body: JSON.stringify({
                 model: GROQ_MODEL,
                 temperature: 0.3,
+                max_completion_tokens: 512,
                 response_format: {
-                    type: 'json_object',
+                    type: "json_object",
                 },
                 messages: [
                     {
-                        role: 'system',
+                        role: "system",
                         content: `
-You are an expert English language teacher.
+You are an American English vocabulary teacher.
 
-Explain English words and phrases clearly and accurately.
+Explain the given English word or phrase.
 
-Return only a valid JSON object with this exact structure:
+Return ONLY a valid JSON object.
+Do not use Markdown or code fences.
+
+Use exactly this structure:
 {
-  "word": "The word or phrase",
-  "partOfSpeech": "The part of speech",
-  "meaning": "A clear, concise explanation",
+  "word": "reluctant",
+  "partOfSpeech": "adjective",
+  "meaning": "Not wanting to do something, but doing it anyway.",
   "examples": [
-    "A natural real-life example sentence",
-    "A second natural real-life example sentence"
+    "I was reluctant to go out, but my friends convinced me.",
+    "She seemed reluctant to talk about what happened."
   ]
 }
 
 Rules:
-- Explain the actual meaning in the given context where possible.
-- Keep the meaning simple and easy to understand.
-- Provide exactly two distinct, natural example sentences.
-- Examples must demonstrate how native or fluent English speakers actually use the expression.
-- Avoid robotic, generic, or dictionary-style example sentences.
-- Do not invent alternative meanings unrelated to the input.
-- Return valid JSON only.
-            `.trim(),
+- Meaning must be one short sentence.
+- Provide exactly two distinct examples.
+- Examples must sound natural in everyday American English.
+- Use simple, conversational language.
+- Do not include anything outside the JSON object.
+`.trim(),
                     },
                     {
-                        role: 'user',
+                        role: "user",
                         content: `Explain this English word or phrase: ${normalizedWord}`,
                     },
                 ],
@@ -149,20 +142,20 @@ Rules:
         const content = data.choices?.[0]?.message?.content;
 
         if (!content) {
-            throw new Error('Groq returned an empty response.');
+            throw new Error("Groq returned an empty response.");
         }
 
         return parseExplanation(content);
     } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-            throw new Error('The request timed out. Please try again.');
+        if (error instanceof Error && error.name === "AbortError") {
+            throw new Error("The request timed out. Please try again.");
         }
 
         if (error instanceof Error) {
             throw error;
         }
 
-        throw new Error('Something went wrong while contacting Groq.');
+        throw new Error("Something went wrong while contacting Groq.");
     } finally {
         clearTimeout(timeoutId);
     }

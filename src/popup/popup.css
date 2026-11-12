@@ -359,3 +359,342 @@ input {
   font-size: 10px;
   text-align: center;
 }
+
+
+.settings-panel {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-panel summary {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.settings-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.settings-panel .delete-button {
+  margin-top: 10px;
+}
+
+.settings-panel .hint {
+  overflow-wrap: anywhere;
+}
+
+/* Explanation result */
+
+.explanation-card {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface, #ffffff);
+}
+
+.explanation-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 20px;
+}
+
+.explanation-word {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.word-type {
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: var(--border);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.result-label {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--muted, #777777);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.meaning-section {
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--meaning-bg, #f1f5ff);
+}
+
+.meaning-text {
+  margin: 0;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.examples-section {
+  margin-top: 20px;
+}
+
+.example-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.example-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.example-number {
+  flex-shrink: 0;
+  color: var(--accent, #6478d3);
+  font-size: 11px;
+  font-weight: 700;
+  padding-top: 2px;
+}
+
+.example-item p {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+
+/* =================================
+   Explanation card
+================================= */
+
+.explanation-card {
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 14px;
+  background: var(--surface, #ffffff);
+}
+
+.explanation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.explanation-title-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.explanation-word {
+  margin: 0;
+  color: var(--text, #202124);
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -0.6px;
+}
+
+.word-type {
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: var(--border, #eeeeee);
+  color: var(--text, #444444);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.save-indicator {
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.save-indicator.is-saved {
+  background: #e8f7ed;
+  color: #21834b;
+}
+
+.save-indicator.not-saved {
+  background: #fff2df;
+  color: #9a641b;
+}
+
+/* =================================
+   Meaning
+================================= */
+
+.meaning-section {
+  padding: 15px;
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 11px;
+  background: var(--meaning-bg, #f3f5fb);
+}
+
+.result-label {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted, #777777);
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.meaning-text {
+  margin: 0;
+  color: var(--text, #202124);
+  font-size: 15px;
+  font-weight: 550;
+  line-height: 1.65;
+}
+
+/* =================================
+   Examples
+================================= */
+
+.examples-section {
+  margin-top: 21px;
+}
+
+.example-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+}
+
+.example-item:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.example-number {
+  flex-shrink: 0;
+  padding-top: 2px;
+  color: var(--accent, #6478d3);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.example-item p {
+  margin: 0;
+  color: var(--text, #333333);
+  font-size: 14px;
+  font-weight: 450;
+  line-height: 1.7;
+}
+
+/* =================================
+   Copy and delete actions
+================================= */
+
+.copy-button {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 19px;
+  padding: 9px 13px;
+  border: 1px solid var(--border, #dddddd);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text, #333333);
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.copy-button:hover {
+  background: var(--hover-bg, #f3f4f6);
+}
+
+.copy-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.saved-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.saved-actions .copy-button {
+  flex: 1;
+  width: auto;
+}
+
+.saved-actions .delete-button {
+  flex-shrink: 0;
+  margin-top: 19px;
+}
+
+/* =================================
+   Loading animation
+================================= */
+
+.primary-button.is-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: wait;
+  opacity: 0.85;
+}
+
+.primary-button.is-loading::before {
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: explain-spinner 700ms linear infinite;
+}
+
+@keyframes explain-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =================================
+   Small screens and popup spacing
+================================= */
+
+@media (max-width: 380px) {
+  .explanation-card {
+    padding: 14px;
+  }
+
+  .explanation-word {
+    font-size: 20px;
+  }
+
+  .example-item p {
+    font-size: 13px;
+  }
+}
