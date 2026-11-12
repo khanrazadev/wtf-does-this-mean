@@ -14,16 +14,6 @@ interface ExplainHandlerElements {
     explanationResult: HTMLDivElement;
 }
 
-function formatExplanation(entry: VocabularyEntry): string {
-    return `${entry.word}
-
-Meaning: ${entry.meaning}
-
-Examples:
-1. ${entry.examples[0]}
-2. ${entry.examples[1]}`;
-}
-
 export function initializeExplainHandler({
     wordInput,
     wordForm,
@@ -37,46 +27,8 @@ export function initializeExplainHandler({
         explainButton.disabled =
             isExplaining || !wordInput.value.trim();
 
+        statusMessage.hidden = true;
         statusMessage.textContent = '';
-    });
-
-    explanationResult.addEventListener('click', async (event) => {
-        const target = event.target;
-
-        if (!(target instanceof Element)) {
-            return;
-        }
-
-        const copyButton = target.closest<HTMLButtonElement>(
-            '[data-copy-explanation]',
-        );
-
-        if (!copyButton || copyButton.disabled) {
-            return;
-        }
-
-        copyButton.disabled = true;
-
-        try {
-            const entryText = copyButton.dataset.copyText;
-
-            if (!entryText) {
-                throw new Error('Nothing to copy.');
-            }
-
-            await navigator.clipboard.writeText(entryText);
-
-            copyButton.textContent = 'Copied!';
-            statusMessage.textContent = 'Explanation copied to clipboard.';
-        } catch {
-            statusMessage.textContent = 'Could not copy the explanation.';
-        } finally {
-            copyButton.disabled = false;
-
-            window.setTimeout(() => {
-                copyButton.textContent = 'Copy explanation';
-            }, 1500);
-        }
     });
 
     wordForm.addEventListener('submit', async (event) => {
@@ -89,12 +41,15 @@ export function initializeExplainHandler({
         }
 
         isExplaining = true;
+
         explainButton.disabled = true;
         explainButton.classList.add('is-loading');
         explainButton.setAttribute('aria-busy', 'true');
-        explainButton.textContent = 'Finding meaning...';
+        explainButton.textContent = 'Explaining...';
 
+        statusMessage.hidden = true;
         statusMessage.textContent = '';
+
         explanationResult.hidden = true;
         explanationResult.innerHTML = '';
 
@@ -107,88 +62,57 @@ export function initializeExplainHandler({
                 createdAt: Date.now(),
             };
 
-            let isSaved = false;
-
-            try {
-                await saveVocabulary(entry);
-                isSaved = true;
-            } catch {
-                // Keep the explanation available even if storage fails.
-            }
-
-            const copyText = escapeHtml(formatExplanation(entry));
-
             explanationResult.innerHTML = `
-        <article class="explanation-card">
+        <article class="word-card">
+          <div class="word-card-header">
+            <h2 class="word-card-title">
+              ${escapeHtml(entry.word)}
+            </h2>
 
-          <div class="explanation-header">
-            <div class="explanation-title-group">
-              <h2 class="explanation-word">
-                ${escapeHtml(entry.word)}
-              </h2>
-
-              ${entry.partOfSpeech
-                    ? `<span class="word-type">${escapeHtml(entry.partOfSpeech)}</span>`
+            ${entry.partOfSpeech
+                    ? `<span class="word-card-type">${escapeHtml(entry.partOfSpeech)}</span>`
                     : ''
                 }
-            </div>
-
-            <span class="save-indicator ${isSaved ? 'is-saved' : 'not-saved'}">
-              ${isSaved ? '✓ Saved' : 'Not saved'}
-            </span>
           </div>
 
-          <section class="meaning-section">
-            <span class="result-label">MEANING</span>
+          <p class="word-card-meaning">
+            ${escapeHtml(entry.meaning)}
+          </p>
 
-            <p class="meaning-text">
-              ${escapeHtml(entry.meaning)}
-            </p>
-          </section>
+          <div class="word-card-examples">
+            <span class="examples-label">Eg</span>
 
-          <section class="examples-section">
-            <span class="result-label">REAL-LIFE EXAMPLES</span>
-
-            <div class="example-item">
-              <span class="example-number">01</span>
-              <p>${escapeHtml(entry.examples[0])}</p>
-            </div>
-
-            <div class="example-item">
-              <span class="example-number">02</span>
-              <p>${escapeHtml(entry.examples[1])}</p>
-            </div>
-          </section>
-
-          <button
-            class="copy-button"
-            type="button"
-            data-copy-explanation
-            data-copy-text="${copyText}"
-          >
-            Copy explanation
-          </button>
-
+            <ul>
+              <li>${escapeHtml(entry.examples[0])}</li>
+              <li>${escapeHtml(entry.examples[1])}</li>
+            </ul>
+          </div>
         </article>
       `;
 
             explanationResult.hidden = false;
 
-            statusMessage.textContent = isSaved
-                ? 'Added to your vocabulary.'
-                : 'Explanation ready, but could not save it.';
+            try {
+                await saveVocabulary(entry);
+            } catch {
+                statusMessage.textContent =
+                    'Could not save this word.';
+                statusMessage.hidden = false;
+            }
         } catch (error) {
             statusMessage.textContent =
                 error instanceof Error
                     ? error.message
                     : 'Could not explain this word. Please try again.';
+
+            statusMessage.hidden = false;
         } finally {
             isExplaining = false;
 
             explainButton.classList.remove('is-loading');
             explainButton.removeAttribute('aria-busy');
 
-            explainButton.textContent = 'Explain word';
+            explainButton.textContent = 'Explain';
             explainButton.disabled = !wordInput.value.trim();
         }
     });
