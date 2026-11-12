@@ -103,13 +103,10 @@ export const popupMarkup = `
     </section>
 
     <section id="saved-view" hidden>
-      <input
-        id="saved-search"
-        class="word-input"
-        type="search"
-        placeholder="Search your vocabulary..."
-        aria-label="Search saved vocabulary"
-      />
+      <div class="saved-header">
+        <h2 class="saved-heading">Saved vocabulary</h2>
+        <span id="saved-count" class="saved-count">0 words</span>
+      </div>
 
       <div
         id="saved-list"

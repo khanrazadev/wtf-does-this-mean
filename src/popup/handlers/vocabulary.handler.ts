@@ -1,7 +1,7 @@
 
 import {
     deleteVocabulary,
-    searchVocabulary,
+    getVocabulary,
 } from '../../storage/vocabulary.storage';
 
 import type { VocabularyEntry } from '../../types/vocabulary.types';
@@ -9,38 +9,29 @@ import type { VocabularyEntry } from '../../types/vocabulary.types';
 import { escapeHtml } from '../utils/html.utils';
 
 interface VocabularyHandlerElements {
-    savedSearch: HTMLInputElement;
     savedList: HTMLDivElement;
     savedStatus: HTMLElement;
+    savedCount: HTMLElement;
 }
 
 export function initializeVocabularyHandler({
-    savedSearch,
     savedList,
     savedStatus,
+    savedCount,
 }: VocabularyHandlerElements): void {
-    let searchRequestId = 0;
-
-    async function loadSavedVocabulary(query = ''): Promise<void> {
-        const requestId = ++searchRequestId;
-
+    async function loadSavedVocabulary(): Promise<void> {
         savedStatus.textContent = '';
 
         try {
-            const entries = await searchVocabulary(query);
+            const entries = await getVocabulary();
 
-            // Ignore outdated search results.
-            if (requestId !== searchRequestId) {
-                return;
-            }
+            savedCount.textContent =
+                `${entries.length} ${entries.length === 1 ? 'word' : 'words'}`;
 
             renderSavedEntries(entries);
         } catch {
-            if (requestId !== searchRequestId) {
-                return;
-            }
-
             savedList.innerHTML = '';
+            savedCount.textContent = '0 words';
             savedStatus.textContent =
                 'Could not load your saved vocabulary.';
         }
@@ -51,9 +42,9 @@ export function initializeVocabularyHandler({
             savedList.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">⌑</div>
-          <h2 class="empty-title">No saved words found</h2>
+          <h2 class="empty-title">No saved words yet</h2>
           <p class="empty-description">
-            Your saved vocabulary will appear here.
+            Words you explain will appear here automatically.
           </p>
         </div>
       `;
@@ -65,7 +56,6 @@ export function initializeVocabularyHandler({
             .map(
                 (entry) => `
           <article class="saved-entry">
-
             <div class="saved-entry-header">
               <div>
                 <h2 class="saved-word">
@@ -83,7 +73,6 @@ export function initializeVocabularyHandler({
                 type="button"
                 data-delete-id="${escapeHtml(entry.id)}"
                 aria-label="Delete ${escapeHtml(entry.word)}"
-                title="Delete word"
               >
                 Delete
               </button>
@@ -101,16 +90,11 @@ export function initializeVocabularyHandler({
                 <li>${escapeHtml(entry.examples[1])}</li>
               </ul>
             </div>
-
           </article>
         `,
             )
             .join('');
     }
-
-    savedSearch.addEventListener('input', () => {
-        void loadSavedVocabulary(savedSearch.value);
-    });
 
     savedList.addEventListener('click', async (event) => {
         const target = event.target;
@@ -138,7 +122,7 @@ export function initializeVocabularyHandler({
 
         try {
             await deleteVocabulary(entryId);
-            await loadSavedVocabulary(savedSearch.value);
+            await loadSavedVocabulary();
         } catch {
             deleteButton.disabled = false;
             savedStatus.textContent =

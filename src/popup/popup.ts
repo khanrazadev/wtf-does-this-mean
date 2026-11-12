@@ -1,15 +1,11 @@
 
 import './popup.css';
 
-import { popupMarkup } from "./components/popup-view";
-
-import { getRequiredElement } from './utils/dom.utils';
-
+import { popupMarkup } from './components/popup-view';
 import { initializeExplainHandler } from './handlers/explain.handler';
 import { initializeVocabularyHandler } from './handlers/vocabulary.handler';
 import { initializeSettingsHandler } from './handlers/settings.handler';
-
-// Initialize popup
+import { getRequiredElement } from './utils/dom.utils';
 
 const app = getRequiredElement<HTMLDivElement>(
   document,
@@ -18,22 +14,7 @@ const app = getRequiredElement<HTMLDivElement>(
 
 app.innerHTML = popupMarkup;
 
-// DOM elements
-
-const tabs = app.querySelectorAll<HTMLButtonElement>(
-  '[data-tab]',
-);
-
-const explainView = getRequiredElement<HTMLElement>(
-  app,
-  '#explain-view',
-);
-
-const savedView = getRequiredElement<HTMLElement>(
-  app,
-  '#saved-view',
-);
-
+// Explain elements
 const wordInput = getRequiredElement<HTMLInputElement>(
   app,
   '#word-input',
@@ -59,11 +40,7 @@ const explanationResult = getRequiredElement<HTMLDivElement>(
   '#explanation-result',
 );
 
-const savedSearch = getRequiredElement<HTMLInputElement>(
-  app,
-  '#saved-search',
-);
-
+// Saved vocabulary elements
 const savedList = getRequiredElement<HTMLDivElement>(
   app,
   '#saved-list',
@@ -74,6 +51,12 @@ const savedStatus = getRequiredElement<HTMLElement>(
   '#saved-status',
 );
 
+const savedCount = getRequiredElement<HTMLElement>(
+  app,
+  '#saved-count',
+);
+
+// Settings elements
 const apiKeyForm = getRequiredElement<HTMLFormElement>(
   app,
   '#api-key-form',
@@ -100,7 +83,6 @@ const apiKeyStatus = getRequiredElement<HTMLElement>(
 );
 
 // Initialize handlers
-
 initializeExplainHandler({
   wordInput,
   wordForm,
@@ -110,9 +92,9 @@ initializeExplainHandler({
 });
 
 initializeVocabularyHandler({
-  savedSearch,
   savedList,
   savedStatus,
+  savedCount,
 });
 
 initializeSettingsHandler({
@@ -124,32 +106,38 @@ initializeSettingsHandler({
 });
 
 // Tab navigation
+const tabs = app.querySelectorAll<HTMLButtonElement>('.tab');
 
-function switchTab(tabName: 'explain' | 'saved'): void {
-  const isExplainTab = tabName === 'explain';
+const explainView = getRequiredElement<HTMLElement>(
+  app,
+  '#explain-view',
+);
+
+const savedView = getRequiredElement<HTMLElement>(
+  app,
+  '#saved-view',
+);
+
+function switchTab(selectedTab: string): void {
+  const isExplainTab = selectedTab === 'explain';
 
   explainView.hidden = !isExplainTab;
   savedView.hidden = isExplainTab;
 
   tabs.forEach((tab) => {
-    const isActive = tab.dataset.tab === tabName;
+    const isActive = tab.dataset.tab === selectedTab;
 
     tab.classList.toggle('active', isActive);
     tab.setAttribute('aria-selected', String(isActive));
   });
-
-  if (!isExplainTab) {
-    // Refresh saved vocabulary whenever the Saved tab opens.
-    savedSearch.dispatchEvent(new Event('input'));
-  }
 }
 
 tabs.forEach((tab) => {
   tab.addEventListener('click', () => {
-    const tabName = tab.dataset.tab;
+    const selectedTab = tab.dataset.tab;
 
-    if (tabName === 'explain' || tabName === 'saved') {
-      switchTab(tabName);
+    if (selectedTab) {
+      switchTab(selectedTab);
     }
   });
 });
