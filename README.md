@@ -27,17 +27,13 @@ So this does two things:
 
 ## Screenshots
 
-**Explaining a word**
+## Screenshots
 
-![Explain a word](screenshots/explain.png)
-
-**Saved vocabulary**
-
-![Saved vocabulary](screenshots/saved-vocabulary.png)
-
-**API settings** (you add your own Groq API key here)
-
-![API settings](screenshots/api-settings.png)
+<p align="center">
+  <img src="screenshots/explain.png" width="32%" alt="Explain a word">
+  <img src="screenshots/saved-vocabulary.png" width="32%" alt="Saved vocabulary">
+  <img src="screenshots/api-settings.png" width="32%" alt="API settings">
+</p>
 
 ## How it works
 
