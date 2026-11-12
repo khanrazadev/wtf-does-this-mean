@@ -1,9 +1,7 @@
 
 import { explainWord } from '../../services/groq.service';
 import { saveVocabulary } from '../../storage/vocabulary.storage';
-
 import type { VocabularyEntry } from '../../types/vocabulary.types';
-
 import { escapeHtml } from '../utils/html.utils';
 
 interface ExplainHandlerElements {
@@ -12,6 +10,13 @@ interface ExplainHandlerElements {
     explainButton: HTMLButtonElement;
     statusMessage: HTMLElement;
     explanationResult: HTMLDivElement;
+}
+
+function isSingleWord(value: string): boolean {
+    const wordPattern =
+        /^[\p{L}\p{M}]+(?:['’\-][\p{L}\p{M}]+)*$/u;
+
+    return wordPattern.test(value.trim());
 }
 
 export function initializeExplainHandler({
@@ -36,12 +41,17 @@ export function initializeExplainHandler({
 
         const word = wordInput.value.trim();
 
-        if (!word || isExplaining) {
+        if (!word || isExplaining) return;
+
+        if (!isSingleWord(word)) {
+            statusMessage.textContent =
+                'Please enter one word at a time. This tool is designed for vocabulary explanations, not general questions.';
+            statusMessage.hidden = false;
+            explanationResult.hidden = true;
             return;
         }
 
         isExplaining = true;
-
         explainButton.disabled = true;
         explainButton.classList.add('is-loading');
         explainButton.setAttribute('aria-busy', 'true');
@@ -49,7 +59,6 @@ export function initializeExplainHandler({
 
         statusMessage.hidden = true;
         statusMessage.textContent = '';
-
         explanationResult.hidden = true;
         explanationResult.innerHTML = '';
 
@@ -65,23 +74,17 @@ export function initializeExplainHandler({
             explanationResult.innerHTML = `
         <article class="word-card">
           <div class="word-card-header">
-            <h2 class="word-card-title">
-              ${escapeHtml(entry.word)}
-            </h2>
-
+            <h2 class="word-card-title">${escapeHtml(entry.word)}</h2>
             ${entry.partOfSpeech
                     ? `<span class="word-card-type">${escapeHtml(entry.partOfSpeech)}</span>`
                     : ''
                 }
           </div>
 
-          <p class="word-card-meaning">
-            ${escapeHtml(entry.meaning)}
-          </p>
+          <p class="word-card-meaning">${escapeHtml(entry.meaning)}</p>
 
           <div class="word-card-examples">
             <span class="examples-label">Eg</span>
-
             <ul>
               <li>${escapeHtml(entry.examples[0])}</li>
               <li>${escapeHtml(entry.examples[1])}</li>
@@ -95,8 +98,7 @@ export function initializeExplainHandler({
             try {
                 await saveVocabulary(entry);
             } catch {
-                statusMessage.textContent =
-                    'Could not save this word.';
+                statusMessage.textContent = 'Could not save this word.';
                 statusMessage.hidden = false;
             }
         } catch (error) {
@@ -108,10 +110,8 @@ export function initializeExplainHandler({
             statusMessage.hidden = false;
         } finally {
             isExplaining = false;
-
             explainButton.classList.remove('is-loading');
             explainButton.removeAttribute('aria-busy');
-
             explainButton.textContent = 'Explain';
             explainButton.disabled = !wordInput.value.trim();
         }

@@ -493,3 +493,24 @@ body:has(#saved-view:not([hidden])) {
   color: var(--text-muted);
   font-size: 11px;
 }
+
+.creator-credit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.creator-credit a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.creator-credit a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}

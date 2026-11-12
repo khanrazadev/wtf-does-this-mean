@@ -41,7 +41,7 @@ export const popupMarkup = `
             id="word-input"
             class="word-input"
             type="text"
-            placeholder="Type or paste a word or phrase..."
+            placeholder="Enter a word..."
             autocomplete="off"
             maxlength="150"
             aria-label="Word or phrase"
@@ -99,6 +99,16 @@ export const popupMarkup = `
         </button>
 
         <p id="api-key-status" class="hint" role="status"></p>
+        <div class="creator-credit">
+  <span>Made by Raza Khan</span>
+  <a
+    href="https://github.com/khanrazadev"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    GitHub ↗
+  </a>
+</div>
       </details>
     </section>
 
