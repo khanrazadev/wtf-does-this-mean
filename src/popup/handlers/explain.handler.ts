@@ -1,6 +1,9 @@
 
 import { explainWord } from '../../services/groq.service';
-import { saveVocabulary } from '../../storage/vocabulary.storage';
+import {
+    getVocabulary,
+    saveVocabulary,
+} from '../../storage/vocabulary.storage';
 import type { VocabularyEntry } from '../../types/vocabulary.types';
 import { escapeHtml } from '../utils/html.utils';
 
@@ -55,7 +58,7 @@ export function initializeExplainHandler({
         explainButton.disabled = true;
         explainButton.classList.add('is-loading');
         explainButton.setAttribute('aria-busy', 'true');
-        explainButton.textContent = 'Explaining...';
+        explainButton.textContent = 'Checking...';
 
         statusMessage.hidden = true;
         statusMessage.textContent = '';
@@ -63,6 +66,24 @@ export function initializeExplainHandler({
         explanationResult.innerHTML = '';
 
         try {
+            const existingEntries = await getVocabulary();
+
+            const normalizedWord = word.toLocaleLowerCase();
+
+            const alreadySaved = existingEntries.some(
+                (entry) =>
+                    entry.word.trim().toLocaleLowerCase() === normalizedWord,
+            );
+
+            if (alreadySaved) {
+                statusMessage.textContent =
+                    "You've already learned this word. Find it in Saved vocabulary.";
+                statusMessage.hidden = false;
+                return;
+            }
+
+            explainButton.textContent = 'Explaining...';
+
             const explanation = await explainWord(word);
 
             const entry: VocabularyEntry = {
