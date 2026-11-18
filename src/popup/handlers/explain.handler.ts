@@ -177,7 +177,7 @@ export function initializeExplainHandler({
         try {
             const existingEntries = await getVocabulary();
 
-            const normalizedWord = word.toLocaleLowerCase();
+            const normalizedWord = word.toLocaleLowerCase().trim();
 
             const alreadySaved = existingEntries.some(
                 (entry) =>

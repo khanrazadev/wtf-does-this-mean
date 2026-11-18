@@ -1,24 +1,24 @@
-
 {
   "manifest_version": 3,
   "name": "WTFDoesThisMean",
   "version": "0.1.0",
   "description": "Understand words. Learn to use them naturally.",
- "permissions": [
-  "storage",
-  "contextMenus",
-  "activeTab",
-  "clipboardWrite"
-],
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
     "https://api.groq.com/*"
   ],
-  "background": {
-    "service_worker": "src/background/background.ts",
-    "type": "module"
-  },
   "action": {
-    "default_popup": "src/popup/popup.html"
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png"
+    }
   },
-  "icons": {}
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
 }
