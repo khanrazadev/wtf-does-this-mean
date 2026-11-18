@@ -1,4 +1,3 @@
-
 export const popupMarkup = `
   <header class="header">
     <div class="brand">
@@ -44,7 +43,7 @@ export const popupMarkup = `
             placeholder="Enter a word..."
             autocomplete="off"
             maxlength="150"
-            aria-label="Word or phrase"
+            aria-label="English word"
             required
           />
 
@@ -99,16 +98,6 @@ export const popupMarkup = `
         </button>
 
         <p id="api-key-status" class="hint" role="status"></p>
-        <div class="creator-credit">
-  <span>Made by Raza Khan</span>
-  <a
-    href="https://github.com/khanrazadev"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    GitHub ↗
-  </a>
-</div>
       </details>
     </section>
 
@@ -127,4 +116,16 @@ export const popupMarkup = `
       <p id="saved-status" class="hint" role="status"></p>
     </section>
   </main>
+
+  <footer class="creator-footer">
+    <span>Made by Raza</span>
+
+    <a
+      href="https://github.com/khanrazadev"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      GitHub ↗
+    </a>
+  </footer>
 `;

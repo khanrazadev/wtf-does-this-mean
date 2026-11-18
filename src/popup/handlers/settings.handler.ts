@@ -1,4 +1,3 @@
-
 import {
     getGroqApiKey,
     saveGroqApiKey,
@@ -20,15 +19,16 @@ export function initializeSettingsHandler({
     removeApiKeyButton,
     apiKeyStatus,
 }: SettingsHandlerElements): void {
+    function updateSettingsUI(hasApiKey: boolean): void {
+        apiKeyForm.hidden = hasApiKey;
+        removeApiKeyButton.hidden = !hasApiKey;
+        apiKeyStatus.textContent = '';
+    }
+
     async function loadApiKeySettings(): Promise<void> {
         try {
             const apiKey = await getGroqApiKey();
-
-            removeApiKeyButton.hidden = !apiKey;
-
-            apiKeyStatus.textContent = apiKey
-                ? 'API key configured successfully.'
-                : 'No API key configured yet.';
+            updateSettingsUI(Boolean(apiKey));
         } catch {
             apiKeyStatus.textContent =
                 'Could not load API settings.';
@@ -52,10 +52,7 @@ export function initializeSettingsHandler({
             await saveGroqApiKey(apiKey);
 
             apiKeyInput.value = '';
-            removeApiKeyButton.hidden = false;
-
-            apiKeyStatus.textContent =
-                'API key saved successfully.';
+            updateSettingsUI(true);
         } catch {
             apiKeyStatus.textContent =
                 'Could not save API key. Try again.';
@@ -69,12 +66,8 @@ export function initializeSettingsHandler({
 
         try {
             await removeGroqApiKey();
-
             apiKeyInput.value = '';
-            removeApiKeyButton.hidden = true;
-
-            apiKeyStatus.textContent =
-                'API key removed successfully.';
+            updateSettingsUI(false);
         } catch {
             apiKeyStatus.textContent =
                 'Could not remove API key.';
