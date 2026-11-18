@@ -77,6 +77,7 @@ TypeScript, Vite, Chrome Extension APIs, Groq API
 ## Privacy
 
 Your saved words and your API key stay in your browser. The words you ask about are sent to Groq so it can generate the answer. No account needed (I don't want your email anyway, Unless...).
+Read our full [Privacy Policy](PRIVACY.md).
 
 ## Contributing
 
