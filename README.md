@@ -1,19 +1,19 @@
 # WTFDoesThisMean
 
-A Chrome extension that explains English words in plain language and saves them so you don't forget them.
-
-I'm not a native English speaker, and I built this for myself first.
+A Chrome extension that helps you understand English words, learn how to use them naturally, and actually remember them.
 
 ## Why I made it
 
-Dictionaries tell you what a word means. They don't really tell you how people use it. I kept running into words where I understood the definition and still had no idea when I'd actually say it in a conversation.
+I look up words all the time while reading articles, watching videos, or scrolling the internet (manga too 🌚).
 
-The other problem is that I'd look a word up, think "okay, got it", and forget it a few days later. Then I'd look up the same word again.
+The problem: dictionaries tell you what a word means, but not how people actually use it. And even when I understood a word, I forgot it a few days later and looked it up again. (Classic.)
 
-So this does two things:
+So this extension does two things:
 
-1. Explains a word in simple English and gives two everyday American English examples, so you see it used the way people actually talk.
-2. Saves every word you look up, so you can go back and revise it instead of searching again.
+1. Explains a word in simple English with two everyday American English examples (no textbook energy).
+2. Saves every word you look up, so you can revise it instead of searching again.
+
+And it lives right in your browser. Pretty convenient, isn't it? (ik ik)
 
 ## What it does
 
@@ -23,9 +23,8 @@ So this does two things:
 - Saves explained words automatically
 - Lets you browse your saved words
 - Lets you delete the ones you don't need
-- Works on one word at a time (that's all it's built for)
 
-# Screenshots
+## Screenshots
 
 **Explaining a word**
 
@@ -41,7 +40,7 @@ So this does two things:
 
 ## How it works
 
-It calls the Groq API with the `openai/gpt-oss-20b` model to generate the explanation and examples. You need your own Groq API key.
+The extension calls the Groq API with the `openai/gpt-oss-20b` model to generate the explanation and examples. You need your own Groq API key.
 
 ## Setup
 
@@ -54,23 +53,22 @@ npm install
 npm run build
 ```
 
-## Load it in Chrome
+### Load it in Chrome
 
-After the build finishes:
+After the build finishes (the easy part is over, a few clicks left):
 
-- Open `chrome://extensions/` in a new tab
-- Turn on **Developer mode** (top right)
-- Click **Load unpacked**
-- Select the `dist` folder
-- Open the extension and paste your Groq API key in settings
+1. Open `chrome://extensions/` in a new tab.
+2. Turn on **Developer mode**
+3. Click **Load unpacked**.
+4. Select the `dist` folder.
+5. Open the extension and paste your Groq API key in settings.
 
 ## What I want to add next
 
-- Right click a selected word on any webpage to explain it
+- Right-click a selected word on any webpage to explain it (way less effort)
 - Better ways to revise saved words
 - Ways to organize saved words
-- A hosted backend, so people don't need their own API key
-- Publish it on the Chrome Web Store
+- A hosted backend, so people don't need their own API key (the dream)
 
 ## Built with
 
@@ -78,9 +76,8 @@ TypeScript, Vite, Chrome Extension APIs, Groq API
 
 ## Privacy
 
-Your saved words and your API key stay in your browser (Chrome Storage). The words you ask about get sent to Groq so it can generate the answer. No account needed.
+Your saved words and your API key stay in your browser. The words you ask about are sent to Groq so it can generate the answer. No account needed (I don't want your email anyway, Unless...).
 
 ## Contributing
 
-Found a bug or have an idea? Open an issue or send a PR.
-
+Found a bug or have an idea? Open an issue or send a PR. (Be nice, it's a small project.)
